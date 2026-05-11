@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+<title>FC Mobile · Demo UI</title>
+<style>
+  :root{
+    --green:#00ff90;
+    --green-2:#1be38a;
+    --green-glow:rgba(0,255,144,.55);
+    --text:#eaf6ff;
+    --muted:#94b3d6;
+    --pill:#0b2950;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%;font-family:"Segoe UI",system-ui,Roboto,Arial,sans-serif;color:var(--text);overflow:hidden}
+  body{
+    background:radial-gradient(120% 80% at 50% 20%, #0b3a73 0%, #061a39 45%, #02060f 100%);
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  .field{
+    position:fixed;inset:0;z-index:0;overflow:hidden;
+    background:
+      radial-gradient(60% 40% at 50% 35%, rgba(0,180,255,.35), transparent 70%),
+      linear-gradient(180deg,#02091a 0%,#02234d 45%,#031a3a 100%);
+  }
+  .stripe{position:absolute;inset:0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.025) 0 40px,transparent 40px 80px)}
+  .glow{position:absolute;width:140vmin;height:140vmin;top:-40vmin;left:50%;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,200,140,.18),transparent 70%);filter:blur(20px)}
+
+  .phone{
+    position:relative;z-index:2;
+    width:380px;height:780px;border-radius:42px;
+    background:#0a0a0d;
+    box-shadow:0 30px 60px rgba(0,0,0,.55),0 0 0 2px #1a1a22 inset,0 0 0 8px #050507;
+    padding:14px;
+  }
+  .notch{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:#101018;box-shadow:0 0 0 2px #1a1a22}
+  .screen{position:relative;width:100%;height:100%;border-radius:30px;overflow:hidden;background:#02060f;display:flex;flex-direction:column}
+
+  .browser-bar{
+    flex:0 0 auto;
+    height:38px;display:flex;align-items:center;gap:8px;padding:0 12px;
+    background:#0a0a0d;color:#cfd8e3;font-size:12px;border-bottom:1px solid #15151b;
+  }
+  .browser-bar .dot{width:6px;height:6px;border-radius:50%;background:#3a3a44}
+  .browser-bar .url{flex:1;background:#15151b;border-radius:10px;padding:5px 10px;color:#9aa3ad;font-size:11px}
+
+  .app{
+    flex:1 1 auto;position:relative;width:100%;
+    background:radial-gradient(120% 80% at 50% 0%, #0a3a78 0%, #02173a 50%, #010816 100%);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .app .field-bg{position:absolute;inset:0;opacity:.6;pointer-events:none;z-index:1}
+  .app .field-bg::before,.app .field-bg::after{content:"";position:absolute;left:50%;transform:translateX(-50%);border:2px solid rgba(120,180,255,.25);border-radius:50%}
+  .app .field-bg::before{width:90%;height:80%;top:8%}
+  .app .field-bg::after{width:30%;height:25%;top:36%}
+
+  /* Card uses flex column — no absolute positioning, nothing overlaps */
+  .card{
+    position:relative;z-index:3;
+    margin:18px 16px 12px;
+    flex:1 1 auto;
+    display:flex;flex-direction:column;gap:14px;
+    padding:18px 16px;
+    border-radius:22px;
+    background:linear-gradient(180deg,#062349 0%, #03152f 100%);
+    border:1.5px solid rgba(0,255,144,.35);
+    box-shadow:0 0 0 1px rgba(0,255,144,.15),0 10px 40px rgba(0,0,0,.55),0 0 60px rgba(0,255,144,.08);
+    overflow:hidden;
+  }
+
+  .brand{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    color:var(--green);font-weight:800;letter-spacing:1px;font-size:20px;
+    text-shadow:0 0 12px var(--green-glow);
+  }
+  .brand .ball{
+    width:20px;height:20px;border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 30%, #fff 0 18%, transparent 19%),
+      radial-gradient(circle at 70% 30%, #fff 0 12%, transparent 13%),
+      radial-gradient(circle at 30% 70%, #fff 0 12%, transparent 13%),
+      radial-gradient(circle at 70% 70%, #fff 0 18%, transparent 19%),
+      #0a0a0a;
+    box-shadow:0 0 8px rgba(0,0,0,.7),0 0 0 1px #1a1a1a;
+  }
+  .brand .trophy{
+    width:16px;height:20px;display:inline-block;
+    background:linear-gradient(180deg,#ffd24a,#c9912a);
+    clip-path:polygon(15% 0,85% 0,90% 30%,75% 55%,75% 78%,90% 100%,10% 100%,25% 78%,25% 55%,10% 30%);
+  }
+
+  .id-pill{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--pill);border:1px solid #0e3b73;border-radius:999px;
+    padding:9px 14px;color:#cfe6ff;font-size:12px;letter-spacing:.5px;
+    align-self:center;max-width:100%;
+  }
+  .id-pill .icon{width:14px;height:14px;border-radius:4px;background:linear-gradient(180deg,#22d3a4,#0a8c66);box-shadow:0 0 0 1px #03402f inset;flex:0 0 auto}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(3, 90px);
+    gap:12px;
+    flex:1 1 auto;
+    justify-content:center;
+    align-content:center;
+  }
+  .tile{
+    position:relative;aspect-ratio:1/1;border-radius:14px;
+    background:linear-gradient(180deg,#1a64c7,#082a59);
+    border:1px solid rgba(255,255,255,.08);
+    overflow:hidden;
+    box-shadow:0 4px 10px rgba(0,0,0,.35),inset 0 0 12px rgba(0,255,144,.06);
+    cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;
+  }
+  .tile:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.45),inset 0 0 18px rgba(0,255,144,.18)}
+  .tile.selected{border-color:var(--green);box-shadow:0 0 0 2px var(--green),0 0 18px var(--green-glow)}
+  .tile .photo{
+    position:absolute;inset:0;background-size:cover;background-position:center 22%;
+    filter:drop-shadow(0 6px 8px rgba(0,0,0,.45));
+  }
+  .tile .photo.contain{background-size:contain;background-repeat:no-repeat;background-position:center center}
+  .tile .num{position:absolute;top:6px;left:8px;font-size:11px;color:#ffd24a;font-weight:800;text-shadow:0 1px 0 rgba(0,0,0,.6);z-index:2}
+  .tile .rating{position:absolute;top:6px;right:8px;font-size:10px;color:#fff;font-weight:800;background:rgba(0,0,0,.45);padding:1px 5px;border-radius:6px;z-index:2}
+  .tile .label{position:absolute;left:0;right:0;bottom:0;text-align:center;padding:3px 4px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.7));color:#fff;font-size:9px;font-weight:700;letter-spacing:.5px;z-index:2}
+
+  .footer{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .cta{
+    background:linear-gradient(180deg,#10ffa4,#00a86b);
+    color:#03251a;font-weight:800;letter-spacing:1px;
+    border:none;border-radius:999px;padding:12px 32px;font-size:14px;cursor:pointer;
+    box-shadow:0 0 0 1px rgba(255,255,255,.25) inset,0 6px 18px rgba(0,255,144,.35);
+    transition:transform .15s ease,filter .2s ease;
+  }
+  .cta:hover{filter:brightness(1.08)}
+  .cta:active{transform:translateY(1px)}
+  .cta[disabled]{filter:saturate(.4) brightness(.85);cursor:not-allowed}
+
+  .generating{
+    display:none;align-items:center;justify-content:center;gap:8px;
+    color:var(--green);font-weight:800;letter-spacing:1.5px;font-size:14px;
+  }
+  .generating .spinner{
+    width:14px;height:14px;border-radius:50%;
+    border:2px solid rgba(0,255,144,.25);border-top-color:var(--green);
+    animation:spin .9s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Success overlay — only visible after click, fully covers the app */
+  .success{
+    position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    z-index:10;padding:16px;
+    background:radial-gradient(80% 60% at 50% 35%, rgba(0,255,144,.15), transparent 70%),#02060f;
+  }
+  .success.show{display:flex}
+  .success-card{
+    width:100%;max-width:300px;text-align:center;padding:22px 16px;
+    border-radius:18px;border:1.5px solid rgba(0,255,144,.45);
+    background:linear-gradient(180deg, rgba(8,38,72,.6), rgba(2,12,28,.85));
+    box-shadow:0 0 30px rgba(0,255,144,.12);
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+  }
+  .listo{font-size:34px;font-weight:900;color:var(--green);text-shadow:0 0 18px var(--green-glow);letter-spacing:2px;margin:0}
+  .code-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--pill);border:1px solid #0e3b73;border-radius:999px;
+    padding:8px 14px;color:#cfe6ff;font-size:12px;letter-spacing:.5px;
+  }
+  .winner-card{
+    width:96px;height:132px;border-radius:14px;
+    background:linear-gradient(180deg,#1a8cf7,#0a3c8a);
+    border:1.5px solid rgba(255,255,255,.18);
+    position:relative;overflow:hidden;
+    box-shadow:0 8px 24px rgba(0,0,0,.45);
+  }
+  .winner-card .photo{position:absolute;inset:0;background-size:cover;background-position:center 22%}
+  .winner-card .photo.contain{background-size:contain;background-repeat:no-repeat;background-position:center center}
+  .winner-card::after{content:"";position:absolute;inset:0;background:radial-gradient(80% 60% at 50% 30%, rgba(255,255,255,.18), transparent 60%);pointer-events:none}
+  .winner-card .num{position:absolute;top:6px;left:6px;color:#fff;font-weight:800;font-size:12px;z-index:2}
+  .winner-card .rating{position:absolute;top:6px;right:6px;color:#ffd24a;font-weight:800;font-size:11px;z-index:2}
+  .winner-card .label{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:10px;font-weight:800;padding:3px 4px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.75));color:#fff;letter-spacing:.5px;z-index:2}
+
+  .close{
+    background:transparent;color:var(--green);
+    border:1.5px solid var(--green);border-radius:999px;
+    padding:9px 24px;font-weight:800;letter-spacing:1.5px;font-size:12px;cursor:pointer;
+    box-shadow:0 0 12px rgba(0,255,144,.25);
+  }
+  .close:hover{background:rgba(0,255,144,.08)}
+
+  .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .confetti span{position:absolute;top:-10px;width:6px;height:10px;opacity:.9;animation:fall 2.4s linear infinite}
+  @keyframes fall{0%{transform:translateY(-10vh) rotate(0)}100%{transform:translateY(110vh) rotate(540deg)}}
+
+  .nav{
+    flex:0 0 auto;
+    height:34px;display:flex;align-items:center;justify-content:space-around;
+    background:#020203;border-top:1px solid #0a0a0e;
+  }
+  .nav .b{width:18px;height:18px;display:flex;align-items:center;justify-content:center}
+  .nav .b.bar{width:22px;height:2px;background:#9aa3ad}
+  .nav .b.circle{width:14px;height:14px;border:2px solid #9aa3ad;border-radius:50%}
+  .nav .b.tri{width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:10px solid #9aa3ad;transform:rotate(-90deg)}
+
+  .caption{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);color:#7e93b0;font-size:12px;letter-spacing:1px;z-index:1}
+</style>
+</head>
+<body>
+  <div class="field"><div class="stripe"></div><div class="glow"></div></div>
+
+  <div class="phone" aria-label="FC Mobile demo UI">
+    <span class="notch"></span>
+    <div class="screen">
+      <div class="app" id="app">
+        <div class="field-bg"></div>
+
+        <section class="card">
+          <div class="brand">
+            <span class="trophy" aria-hidden="true"></span>
+            FC MOBILE
+            <span class="ball" aria-hidden="true"></span>
+          </div>
+
+          <div class="id-pill">
+            <span class="icon"></span>
+            <span id="userId">EXTRAVAYRRBUGT4</span>
+          </div>
+
+          <div class="grid" id="grid">
+            <div class="tile" data-key="messi"    data-name="MESSI"      data-rating="93"><span class="num">★</span><span class="rating">CL</span><div class="photo contain" style="background-image:url('players/messi.png')"></div><span class="label">MESSI · 93</span></div>
+            <div class="tile" data-key="ronaldo"  data-name="RONALDO"    data-rating="91"><span class="num">★</span><span class="rating">CL</span><div class="photo contain" style="background-image:url('players/ronaldo.png')"></div><span class="label">RONALDO · 91</span></div>
+            <div class="tile" data-key="mbappe"   data-name="MBAPPÉ"     data-rating="92"><span class="num">★</span><span class="rating">CL</span><div class="photo contain" style="background-image:url('players/mbappe.png')"></div><span class="label">MBAPPÉ · 92</span></div>
+            <div class="tile" data-key="haaland"  data-name="HAALAND"    data-rating="91"><span class="num">★</span><span class="rating">CL</span><div class="photo contain" style="background-image:url('players/haaland.png')"></div><span class="label">HAALAND · 91</span></div>
+            <div class="tile" data-key="vinicius" data-name="VINÍCIUS"   data-rating="90"><span class="num">★</span><span class="rating">CL</span><div class="photo contain" style="background-image:url('players/vinicius.png')"></div><span class="label">VINÍCIUS · 90</span></div>
+            <div class="tile" data-key="bellingham" data-name="BELLINGHAM" data-rating="90"><span class="num">★</span><span class="rating">CL</span><div class="photo contain" style="background-image:url('players/bellingham.png')"></div><span class="label">BELLINGHAM · 90</span></div>
+          </div>
+
+          <div class="footer">
+            <button class="cta" id="genBtn">GENERAR</button>
+            <div class="generating" id="genState"><span class="spinner"></span><span>GENERANDO…</span></div>
+          </div>
+        </section>
+
+        <section class="success" id="success" role="dialog" aria-modal="true">
+          <div class="confetti" id="confetti" aria-hidden="true"></div>
+          <div class="success-card">
+            <h1 class="listo">¡LISTO!</h1>
+            <div class="code-pill">
+              <span style="width:10px;height:10px;border-radius:3px;background:linear-gradient(180deg,#22d3a4,#0a8c66);display:inline-block"></span>
+              <span id="resultCode">26735497655431216</span>
+            </div>
+            <div class="winner-card" id="winnerCard">
+              <span class="num">★</span><span class="rating">CL</span>
+              <div class="photo contain" id="winnerPhoto"></div>
+              <span class="label" id="winnerLabel">MESSI · 93</span>
+            </div>
+            <button class="close" id="closeBtn">CERRAR</button>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="caption">UI replica · middle of video_001 · demo only</div>
+
+<script>
+  const tiles = document.querySelectorAll('.tile');
+  const genBtn = document.getElementById('genBtn');
+  const genState = document.getElementById('genState');
+  const success = document.getElementById('success');
+  const closeBtn = document.getElementById('closeBtn');
+  const resultCode = document.getElementById('resultCode');
+  const confetti = document.getElementById('confetti');
+  const winnerPhoto = document.getElementById('winnerPhoto');
+  const winnerLabel = document.getElementById('winnerLabel');
+
+  let selected = null;
+  tiles.forEach(t => t.addEventListener('click', () => {
+    tiles.forEach(x => x.classList.remove('selected'));
+    t.classList.add('selected');
+    selected = t;
+  }));
+
+  function makeConfetti(){
+    confetti.innerHTML = '';
+    const colors = ['#00ff90','#22d3a4','#ffd24a','#7ec8ff','#ff6cc1'];
+    for(let i=0;i<40;i++){
+      const s = document.createElement('span');
+      s.style.left = Math.random()*100 + '%';
+      s.style.background = colors[i % colors.length];
+      s.style.animationDelay = (Math.random()*1.2) + 's';
+      s.style.animationDuration = (1.8 + Math.random()*1.6) + 's';
+      s.style.transform = `rotate(${Math.random()*360}deg)`;
+      confetti.appendChild(s);
+    }
+  }
+  function randomCode(){let s='';for(let i=0;i<17;i++)s+=Math.floor(Math.random()*10);return s}
+
+  genBtn.addEventListener('click', () => {
+    const pick = selected || tiles[Math.floor(Math.random()*tiles.length)];
+    genBtn.disabled = true;
+    genBtn.style.display = 'none';
+    genState.style.display = 'flex';
+    setTimeout(() => {
+      genState.style.display = 'none';
+      genBtn.style.display = 'inline-block';
+      genBtn.disabled = false;
+      resultCode.textContent = randomCode();
+      winnerPhoto.style.backgroundImage = `url('players/${pick.dataset.key}.png')`;
+      winnerLabel.textContent = `${pick.dataset.name} · ${pick.dataset.rating}`;
+      makeConfetti();
+      success.classList.add('show');
+    }, 1500);
+  });
+
+  closeBtn.addEventListener('click', () => success.classList.remove('show'));
+</script>
+</body>
+</html>
